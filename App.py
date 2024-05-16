@@ -51,27 +51,3 @@ def s2s():
 if __name__ == '__main__':
     app.run(debug=True)
     
-
-# @app.route('/transcribe', methods=['POST'])
-# def transcribe_audio():
-#     # Check if there is data in the request
-#     if not request.data:
-#         return jsonify({"error": "No data provided"}), 400
-
-#     audio_data = request.data
-#     headers = {
-#         'Authorization': 'Bearer YOUR_API_TOKEN',  # You need to replace 'YOUR_API_TOKEN' with your actual SeamlessM4T API token
-#         'Content-Type': 'audio/wav'  # Adjust depending on the expected audio format
-#     }
-    
-#     # Send the audio data to SeamlessM4T API
-#     response = requests.post('https://api.seamlessm4t.com/transcribe', data=audio_data, headers=headers)
-    
-#     # Check if the request was successful
-#     if response.status_code == 200:
-#         # Process the response or forward it
-#         data = response.json()
-#         return jsonify(data), 200
-#     else:
-#         return jsonify({"error": "API request failed"}), response.status_code
-#     return jsonify({"error": "Something went wrong"}), 500
