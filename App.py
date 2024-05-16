@@ -1,53 +1,29 @@
-# from flask import Flask, request, jsonify , render_template
-
-# app = Flask(__name__)
-
-# @app.root("/")
-# def home():
-#     return "Home"
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-from init import initialize_model
+# flask_app.py
 from flask import Flask, request, jsonify
-import requests
-from flask_cors import CORS
-from io import BytesIO
-import soundfile as sf
-import numpy as np
+from init import text_to_speech, speech_to_speech
 
-import torchaudio
+app = Flask(__name__)
 
-model, processor, device = initialize_model()
-app = Flask(__name__)       
-CORS(app)
-
+@app.route('/t2t', methods=['POST'])
+def t2t():
+    data = request.get_json()
+    text = data.get('text')
+    src_lang = data.get('src_lang')
+    tgt_lang = data.get('tgt_lang')
+    if not all([text, src_lang, tgt_lang]):
+        return jsonify({'error': 'Missing parameters'}), 400
+    result = text_to_speech(text, src_lang, tgt_lang)
+    return jsonify({'result': result.tolist()})
 
 @app.route('/s2s', methods=['POST'])
 def s2s():
-    # Check if the part 'file' is present in the request
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part in the request'}), 400
-
-    file = request.files['file']
-
-    # If the user does not select a file, the browser submits an
-    # empty part without a filename.
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    # Load and resample audio using torchaudio
-    audio, orig_freq = torchaudio.load(BytesIO(file.read()))
-    if orig_freq != 16000:
-        audio = torchaudio.functional.resample(audio, orig_freq=orig_freq, new_freq=16000)
-
-    # Process the audio file
-    tgt_lang = request.form.get('tgtLang', '')  # Assuming 'tgtLang' is sent as a form field
-    audio_inputs = processor(audios=audio, sampling_rate=16000, return_tensors="pt").to(device)
-    audio_array_from_audio = model.generate(**audio_inputs, tgt_lang=tgt_lang)[0].cpu().numpy().squeeze()
-
-    return jsonify({'audioData': audio_array_from_audio.tolist(), 'sample_rate': 16000})
+    data = request.get_json()
+    file_path = data.get('file_path')
+    tgt_lang = data.get('tgt_lang')
+    if not all([file_path, tgt_lang]):
+        return jsonify({'error': 'Missing parameters'}), 400
+    result = speech_to_speech(file_path, tgt_lang)
+    return jsonify({'result': result.tolist()})
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
