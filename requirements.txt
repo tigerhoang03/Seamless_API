@@ -1,0 +1,7 @@
+flask
+werkzeug.utils
+transformers
+torch
+torchaudio
+sentencepiece
+protobuf
