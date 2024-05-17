@@ -19,9 +19,10 @@ def initialize_model():
     else:
         device = torch.device("cpu")
         print("running on cpu")
+    device = "cpu" #temp fix for cuda issue
     processor = AutoProcessor.from_pretrained("facebook/seamless-m4t-v2-large")
     model = SeamlessM4Tv2Model.from_pretrained("facebook/seamless-m4t-v2-large")
-    model = model.to(torch.device("cpu")) #replace cpu to device once cuda is fixed 
+    model = model.to(torch.device(device)) 
     return model, processor, device
 
 
